@@ -64,6 +64,9 @@ DOWNLOADER_MIDDLEWARES = {
 #EXTENSIONS = {
 #    'scrapy.extensions.telnet.TelnetConsole': None,
 #}
+EXTENSIONS = {
+    'git_crawl.extensions.github_rate_limit_watcher.GithubRateLimitWatcher': 5000,
+}
 
 # Configure item pipelines
 # See https://doc.scrapy.org/en/latest/topics/item-pipeline.html
