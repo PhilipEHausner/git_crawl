@@ -17,9 +17,6 @@ class CodeGetterSpider(scrapy.Spider):
         for url in urls:
             if not url:
                 continue
-
-            print("URL {}".format(url), flush=True)
-
             time.sleep(random.uniform(0.2, 0.5))
             yield scrapy.Request(url=url, callback=self.parse)
 

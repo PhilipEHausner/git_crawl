@@ -87,6 +87,7 @@ fabric.properties
 
 # That's secret, do not ask any questions about this.
 secret.json
+*.dat
 *.txt
 crawls/*
 */__pycache__/*
