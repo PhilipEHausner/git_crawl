@@ -4,15 +4,14 @@ import keyword
 
 # Regular expressions, we need to find Python variable names
 variable_start_py = re.compile((r"^[a-zA-Z_]"))
-
+variable_all_py = re.compile((r"^[a-zA-Z_][a-zA-Z_0-9]*"))
 
 variable_names = []
 # iterate over all directories
 for subdir, dirs, files in os.walk('../output/python'):
     for file in files:
         filepath = os.path.join(subdir, file)
-        print(filepath)
-        with open(filepath, 'r') as f:
+        with open(filepath, 'r', encoding='ISO-8859-1') as f:
             content = f.readlines()
         for line in content:
             # to get rid of tabs and spaces at start and/or end of line
@@ -25,10 +24,14 @@ for subdir, dirs, files in os.walk('../output/python'):
                 # line 4: for classes, packages, self, select only most granular element
                 variable = line.split('=')[0] \
                     .strip().split(' ')[0] \
-                    .split('[')[0].strip(',:)]')\
                     .split('.')[-1]
+                variable = re.match(variable_all_py, variable)
+                if variable:
+                    variable = variable[0]
+                else:
+                    continue
                 # check that found variable is not a keyword or function call
-                if variable not in keyword.kwlist and '(' not in variable and ')' not in variable:
+                if variable not in keyword.kwlist:
                     variable_names.append(variable)
 
 with open('./test_vars.txt', 'w') as f:
