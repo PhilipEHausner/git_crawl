@@ -3,6 +3,7 @@ from torch import nn
 import collections
 import numpy as np
 from vaRNN import vaRNN
+from torch.nn.utils.rnn import pad_sequence
 import timeit
 
 def validate(test_x, test_y, network, losss):
@@ -80,21 +81,27 @@ if __name__ == "__main__":
             y_test_flattened.append(torch.tensor(whole_word[j], dtype=torch.long))
 
     epochs = 20
-    net = vaRNN(65, 8, 16)
+    net = vaRNN(65, 8, 16, 65)
     loss = nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(net.parameters(), lr=0.001)
     prev_best = (0, np.inf)
+    batch_size = 4
     print('Start training.')
     for i in range(epochs):
         start = timeit.default_timer()
         losses = []
-        for j, sample in enumerate(x_train_flattened):
+
+        for j in range(0, len(x_train_flattened), batch_size):
+            batch_x = x_train_flattened[j:j+batch_size]
+            batch_y = torch.stack(y_train_flattened[j:j+batch_size])
+            batch_x = pad_sequence(batch_x, batch_first=True, padding_value=65)
             optimizer.zero_grad()
-            prediction = net(sample.unsqueeze(dim=0))
-            curr_loss = loss(prediction, y_train_flattened[j].unsqueeze(dim=0))
+            prediction = net(batch_x)
+            curr_loss = loss(prediction, batch_y)
             losses.append(curr_loss.item())
             curr_loss.backward()
             optimizer.step()
+            batch = []
 
         test_result = validate(x_test_flattened, y_test_flattened, net, loss)
         stop = timeit.default_timer()
